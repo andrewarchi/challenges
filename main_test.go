@@ -19,6 +19,11 @@ func TestDisplayPerformance(t *testing.T) {
 		getGroups(grid)
 	}
 	fmt.Println("Recursive took", time.Since(start))
+	start = time.Now()
+	for i := 0; i < 100000; i++ {
+		getGroupsBySquares(grid)
+	}
+	fmt.Println("Iterative by squares took", time.Since(start))
 
 	grid = [][]bool{
 		{true, false, true, true, false, true, true, false, false, true},
@@ -38,4 +43,9 @@ func TestDisplayPerformance(t *testing.T) {
 		getGroups(grid)
 	}
 	fmt.Println("Recursive took", time.Since(start))
+	start = time.Now()
+	for i := 0; i < 100000; i++ {
+		getGroupsBySquares(grid)
+	}
+	fmt.Println("Iterative by squares took", time.Since(start))
 }
