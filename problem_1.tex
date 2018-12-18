@@ -1,0 +1,45 @@
+\documentclass{article}
+\usepackage{mathtools}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+\newcommand{\ssep}{\mid}
+
+\begin{document}
+  \section{Multiples of 3 and 5}
+  Problem 1
+  
+  If we list all the natural numbers below 10 that are multiples of 3 or 5, we get 3, 5, 6 and 9. The sum of these multiples is 23.
+
+  Find the sum of all the multiples of 3 or 5 below 1000.
+
+  \begin{equation*}
+    \sum\limits_{i=1}^{n} i = \frac{n(n+1)}{2}
+  \end{equation*}
+  \begin{equation*}
+    n_3 := \floor*{\frac{n-1}{3}},
+    n_5 := \floor*{\frac{n-1}{5}},
+    n_{15} := \floor*{\frac{n-1}{15}}
+  \end{equation*}
+  \begin{equation*}
+    \begin{split}
+      f(n)
+      &= 3 + 5 + 6 + 9 + 10 + 12 + 15 + \cdots + n \\
+      &= \sum\left\{ x \in \mathbb{Z}^+
+        \ssep \left(x < n\right)
+        \land \left(
+          \left(0 \equiv x \pmod 3\right)
+          \lor \left(0 \equiv x \pmod 5\right)
+        \right)
+      \right\} \\
+      &= 3\sum\limits_{i=1}^{n_3} i
+        + 5\sum\limits_{i=1}^{n_5} i
+        - 15\sum\limits_{i=1}^{n_{15}} i \\
+      &= 3\frac{n_3(n_3 + 1)}{2}
+        + 5\frac{n_5(n_5 + 1)}{2}
+        - 15\frac{n_{15}(n_{15} + 1)}{2}
+    \end{split}
+  \end{equation*}
+  Thus, for $n=1000$, the result is 233168.
+\end{document}
