@@ -20,11 +20,16 @@ func fib(num chan *big.Int) {
 	}
 }
 
-func fillFib(n int64, cur chan *big.Int, nums []*big.Int) []*big.Int {
-	for i := int64(len(nums)); i < n; i++ {
-		nums = append(nums, <-cur)
+func fibFiller() func(int64) []*big.Int {
+	var nums []*big.Int
+	cur := make(chan *big.Int)
+	go fib(cur)
+	return func(n int64) []*big.Int {
+		for i := int64(len(nums)); i < n; i++ {
+			nums = append(nums, <-cur)
+		}
+		return nums[:n]
 	}
-	return nums
 }
 
 type fibResponse struct {
@@ -33,9 +38,7 @@ type fibResponse struct {
 }
 
 func serveFib() func(http.ResponseWriter, *http.Request, httprouter.Params) {
-	var nums []*big.Int
-	cur := make(chan *big.Int)
-	go fib(cur)
+	fillFib := fibFiller()
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		nParam := p.ByName("n")
 		n, err := strconv.ParseInt(nParam, 10, 64)
@@ -47,8 +50,7 @@ func serveFib() func(http.ResponseWriter, *http.Request, httprouter.Params) {
 			writeResponse(w, nil, fmt.Errorf("n must be positive, got %d", n))
 			return
 		}
-		nums = fillFib(n, cur, nums)
-		writeResponse(w, nums[:n-1], nil)
+		writeResponse(w, fillFib(n), nil)
 	}
 }
 
