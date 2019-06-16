@@ -11,7 +11,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-// Fib sends the Fibonacci on demand.
+// Fib sends the Fibonacci sequence on demand.
 func Fib(num chan *big.Int) {
 	a := new(big.Int).SetUint64(0)
 	b := new(big.Int).SetUint64(1)
@@ -44,11 +44,6 @@ func FibFiller() func(int64) []*big.Int {
 	}
 }
 
-type fibResponse struct {
-	Nums []*big.Int `json:"nums"`
-	Err  error      `json:"error"`
-}
-
 func serveFib() func(http.ResponseWriter, *http.Request, httprouter.Params) {
 	fillFib := FibFiller()
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
@@ -64,6 +59,11 @@ func serveFib() func(http.ResponseWriter, *http.Request, httprouter.Params) {
 		}
 		writeResponse(w, fillFib(n), nil)
 	}
+}
+
+type fibResponse struct {
+	Nums []*big.Int `json:"nums"`
+	Err  error      `json:"error"`
 }
 
 func writeResponse(w http.ResponseWriter, nums []*big.Int, err error) {
