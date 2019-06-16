@@ -11,7 +11,8 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func fib(num chan *big.Int) {
+// Fib sends the Fibonacci on demand.
+func Fib(num chan *big.Int) {
 	a := new(big.Int).SetUint64(0)
 	b := new(big.Int).SetUint64(1)
 	for {
@@ -20,10 +21,21 @@ func fib(num chan *big.Int) {
 	}
 }
 
-func fibFiller() func(int64) []*big.Int {
+// FibNth computes the nth Fibonacci number using fewer allocations.
+func FibNth(n uint64) *big.Int {
+	a := new(big.Int).SetUint64(0)
+	b := new(big.Int).SetUint64(1)
+	for i := uint64(0); i < n; i++ {
+		a, b = b, a.Add(a, b)
+	}
+	return a
+}
+
+// FibFiller returns a func that computes n Fibonacci numbers and caches results.
+func FibFiller() func(int64) []*big.Int {
 	var nums []*big.Int
 	cur := make(chan *big.Int)
-	go fib(cur)
+	go Fib(cur)
 	return func(n int64) []*big.Int {
 		for i := int64(len(nums)); i < n; i++ {
 			nums = append(nums, <-cur)
@@ -38,7 +50,7 @@ type fibResponse struct {
 }
 
 func serveFib() func(http.ResponseWriter, *http.Request, httprouter.Params) {
-	fillFib := fibFiller()
+	fillFib := FibFiller()
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		nParam := p.ByName("n")
 		n, err := strconv.ParseInt(nParam, 10, 64)
