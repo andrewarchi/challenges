@@ -8,19 +8,18 @@ import (
 func TestFib(t *testing.T) {
 	expect := toBig([]int64{0, 1, 1, 2, 3, 5, 8, 13, 21, 34,
 		55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181})
-	cur := make(chan *big.Int)
-	go Fib(cur)
+	num := Fib()
 	for i := range expect {
-		if num := <-cur; num.Cmp(expect[i]) != 0 {
-			t.Errorf("%d: got %s, want %s", i+1, num, expect[i])
+		if n := <-num; n.Cmp(expect[i]) != 0 {
+			t.Errorf("%d: got %s, want %s", i+1, n, expect[i])
 		}
 	}
 }
 
-func TestFibFillerCaching(t *testing.T) {
-	fill := FibFiller()
-	fib50 := fill(50)
-	fib100 := fill(100)
+func TestFibCached(t *testing.T) {
+	fib := FibCached()
+	fib50 := fib(50)
+	fib100 := fib(100)
 	if len(fib50) != 50 || len(fib100) != 100 {
 		t.Fatalf("got len(fib50) = %d and len(fib100) = %d, want 50 and 100", len(fib50), len(fib100))
 	}
@@ -31,7 +30,7 @@ func TestFibFillerCaching(t *testing.T) {
 	}
 }
 
-func TestFibFillerValues(t *testing.T) {
+func TestFibCachedValues(t *testing.T) {
 	tests := []struct {
 		index int
 		num   string
@@ -57,8 +56,8 @@ func TestFibFillerValues(t *testing.T) {
 		{1000, "43466557686937456435688527675040625802564660517371780402481729089536555417949051890403879840079255169295922593080322634775209689623239873322471161642996440906533187938298969649928516003704476137795166849228875"},
 	}
 
-	fill := FibFiller()
-	nums := fill(1001)
+	fib := FibCached()
+	nums := fib(1001)
 	if len(nums) != 1001 {
 		t.Fatalf("got len %d, want 1001", len(nums))
 	}
@@ -74,20 +73,19 @@ func TestFibFillerValues(t *testing.T) {
 	}
 }
 
-func TestFibEqualFibNth(t *testing.T) {
-	fib := FibFiller()(100)
-	for i := range fib {
-		if num := FibNth(uint64(i)); num.Cmp(fib[i]) != 0 {
-			t.Errorf("%d: results not equal, got %s and %s", i, num, fib[i])
+func TestFibCachedEqualFibNth(t *testing.T) {
+	nums := FibCached()(100)
+	for i := range nums {
+		if num := FibNth(uint64(i)); num.Cmp(nums[i]) != 0 {
+			t.Errorf("%d: results not equal, got %s and %s", i, num, nums[i])
 		}
 	}
 }
 
 func BenchmarkFib10000(b *testing.B) {
-	cur := make(chan *big.Int)
-	go Fib(cur)
+	num := Fib()
 	for i := 0; i < 10000; i++ {
-		<-cur
+		<-num
 	}
 }
 

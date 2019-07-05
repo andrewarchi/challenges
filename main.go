@@ -12,13 +12,17 @@ import (
 )
 
 // Fib sends the Fibonacci sequence on demand.
-func Fib(num chan *big.Int) {
+func Fib() <-chan *big.Int {
+	num := make(chan *big.Int)
 	a := new(big.Int).SetUint64(0)
 	b := new(big.Int).SetUint64(1)
-	for {
-		num <- a
-		a, b = b, new(big.Int).Add(a, b)
-	}
+	go func() {
+		for {
+			num <- a
+			a, b = b, new(big.Int).Add(a, b)
+		}
+	}()
+	return num
 }
 
 // FibNth computes the nth Fibonacci number using fewer allocations.
@@ -31,21 +35,20 @@ func FibNth(n uint64) *big.Int {
 	return a
 }
 
-// FibFiller returns a func that computes n Fibonacci numbers and caches results.
-func FibFiller() func(int64) []*big.Int {
+// FibCached returns a func that computes n Fibonacci numbers and caches results.
+func FibCached() func(uint64) []*big.Int {
 	var nums []*big.Int
-	cur := make(chan *big.Int)
-	go Fib(cur)
-	return func(n int64) []*big.Int {
-		for i := int64(len(nums)); i < n; i++ {
-			nums = append(nums, <-cur)
+	num := Fib()
+	return func(n uint64) []*big.Int {
+		for i := uint64(len(nums)); i < n; i++ {
+			nums = append(nums, <-num)
 		}
 		return nums[:n]
 	}
 }
 
 func serveFib() func(http.ResponseWriter, *http.Request, httprouter.Params) {
-	fillFib := FibFiller()
+	fib := FibCached()
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		nParam := p.ByName("n")
 		n, err := strconv.ParseInt(nParam, 10, 64)
@@ -57,7 +60,7 @@ func serveFib() func(http.ResponseWriter, *http.Request, httprouter.Params) {
 			writeResponse(w, nil, fmt.Errorf("n must be positive, got %d", n))
 			return
 		}
-		writeResponse(w, fillFib(n), nil)
+		writeResponse(w, fib(uint64(n)), nil)
 	}
 }
 
