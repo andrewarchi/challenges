@@ -1,7 +1,7 @@
 package bitgroup
 
 import (
-	"reflect"
+	"fmt"
 	"testing"
 )
 
@@ -156,6 +156,48 @@ func TestGroups(t *testing.T) {
 				},
 			},
 		},
+		{
+			Grid: [][]bool{
+				{false, true, false, false},
+				{true, true, true, true},
+			},
+			Groups: [][][]bool{
+				[][]bool{
+					{false, true, false, false},
+					{true, true, true, true},
+				},
+			},
+		},
+		{
+			Grid: [][]bool{
+				{false, true, false, false},
+				{true, false, false, true},
+			},
+			Groups: [][][]bool{
+				[][]bool{
+					{false, true, false, false},
+					{true, false, false, false},
+				},
+				[][]bool{
+					{false, false, false, false},
+					{false, false, false, true},
+				},
+			},
+		},
+		{
+			Grid: [][]bool{
+				{false, true, false, false},
+				{true, false, false, true},
+				{false, true, true, false},
+			},
+			Groups: [][][]bool{
+				[][]bool{
+					{false, true, false, false},
+					{true, false, false, true},
+					{false, true, true, false},
+				},
+			},
+		},
 	}
 
 	for i, test := range tests {
@@ -167,11 +209,21 @@ func TestGroups(t *testing.T) {
 		}
 		for g := 0; g < len(groups); g++ {
 			want := PackBool(test.Groups[g])
-			if !reflect.DeepEqual(groups[g], want) {
-				t.Errorf("test %d: group %d not equal", i, g)
-				t.Errorf("  got:\n%v", groups[g])
-				t.Errorf("  want:\n%v", want)
-			}
+			deepCompare(t, i, fmt.Sprintf("group %d", g), groups[g], want)
 		}
+	}
+}
+
+func BenchmarkGroups_4(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		grid := Grid{0x9, 0xc, 0x3, 0x1} // same as 4x4 grid above
+		grid.Groups()
+	}
+}
+
+func BenchmarkGroups_10(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		grid := Grid{0x26d, 0x34, 0x213, 0xc1, 0x26d, 0x34, 0x213, 0xc1, 0x26d, 0x34} // same as 10x10 grid above
+		grid.Groups()
 	}
 }

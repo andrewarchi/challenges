@@ -23,7 +23,13 @@ func PackBool(boolGrid [][]bool) Grid {
 
 // PackPos packs positions into a compact grid.
 func PackPos(positions []Pos) Grid {
-	grid := make(Grid, len(positions))
+	height := -1
+	for _, pos := range positions {
+		if pos[0] >= height {
+			height = pos[0] + 1
+		}
+	}
+	grid := make(Grid, height)
 	for _, pos := range positions {
 		grid[pos[0]] |= 1 << uint(pos[1])
 	}
@@ -32,10 +38,10 @@ func PackPos(positions []Pos) Grid {
 
 // UnpackBool unpacks a compact grid into a bool grid.
 func (grid Grid) UnpackBool(width int) [][]bool {
-	if width < 0 || width > 64 {
+	if width <= 0 || width > 64 {
 		return nil
 	}
-	var boolGrid [][]bool
+	boolGrid := make([][]bool, len(grid))
 	for row := range grid {
 		boolRow := make([]bool, width)
 		for col := 0; col < width; col++ {
@@ -50,7 +56,7 @@ func (grid Grid) UnpackBool(width int) [][]bool {
 func (grid Grid) UnpackPos() []Pos {
 	var positions []Pos
 	for row := range grid {
-		for col := 0; col < 64; col++ {
+		for col := 0; col < 64 && grid[row] != 0; col++ {
 			if grid[row]&(1<<uint(col)) != 0 {
 				positions = append(positions, Pos{row, col})
 			}

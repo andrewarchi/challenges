@@ -1,49 +1,47 @@
 package main
 
 import (
-	"fmt"
 	"testing"
-	"time"
 
 	"github.com/andrewarchi/gridgrouper/bitgroup"
 )
 
-func TestDisplayPerformance(t *testing.T) {
-	fmt.Println("4x4 grid with 100,000 iterations")
-	start := time.Now()
-	for i := 0; i < 100000; i++ {
+func BenchmarkRecursive_4(b *testing.B) {
+	for i := 0; i < b.N; i++ {
 		getGroups(getGrid4())
 	}
-	fmt.Println("Recursive took", time.Since(start))
-	start = time.Now()
-	for i := 0; i < 100000; i++ {
+}
+
+func BenchmarkIterativeBySquares_4(b *testing.B) {
+	for i := 0; i < b.N; i++ {
 		getGroupsBySquares(getGrid4())
 	}
-	fmt.Println("Iterative by squares took", time.Since(start))
-	start = time.Now()
-	for i := 0; i < 100000; i++ {
-		bitGrid := bitgroup.PackBool(getGrid4())
-		bitGrid.Groups()
-	}
-	fmt.Println("Bitwise took", time.Since(start))
+}
 
-	fmt.Println("\n10x10 grid with 100,000 iterations")
-	start = time.Now()
-	for i := 0; i < 100000; i++ {
+func BenchmarkBitwise_4(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		grid := bitgroup.Grid{0x9, 0xc, 0x3, 0x1}
+		grid.Groups()
+	}
+}
+
+func BenchmarkRecursive_10(b *testing.B) {
+	for i := 0; i < b.N; i++ {
 		getGroups(getGrid10())
 	}
-	fmt.Println("Recursive took", time.Since(start))
-	start = time.Now()
-	for i := 0; i < 100000; i++ {
+}
+
+func BenchmarkIterativeBySquares_10(b *testing.B) {
+	for i := 0; i < b.N; i++ {
 		getGroupsBySquares(getGrid10())
 	}
-	fmt.Println("Iterative by squares took", time.Since(start))
-	start = time.Now()
-	for i := 0; i < 100000; i++ {
-		bitGrid := bitgroup.PackBool(getGrid10())
-		bitGrid.Groups()
+}
+
+func BenchmarkBitwise_10(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		grid := bitgroup.Grid{0x26d, 0x34, 0x213, 0xc1, 0x26d, 0x34, 0x213, 0xc1, 0x26d, 0x34}
+		grid.Groups()
 	}
-	fmt.Println("Bitwise took", time.Since(start))
 }
 
 func getGrid4() [][]bool {
