@@ -1,37 +1,34 @@
-package bitgroup
+package gridgrouper
 
 import (
 	"reflect"
 	"testing"
 )
 
-func TestPacking(t *testing.T) {
+func TestConversions(t *testing.T) {
 	tests := []struct {
-		Width int
-		Grid  Grid
-		Bool  [][]bool
-		Pos   []Pos
+		BitGrid  BitGrid
+		BoolGrid BoolGrid
+		PosSet   PosSet
 	}{
 		{
-			Width: 4,
-			Grid:  Grid{0x9, 0xc, 0x3, 0x1},
-			Bool: [][]bool{
-				{true, false, false, true},
-				{false, false, true, true},
+			BitGrid: BitGrid{0xd, 0x4, 0x3, 0x1},
+			BoolGrid: BoolGrid{
+				{true, false, true, true},
+				{false, false, true, false},
 				{true, true, false, false},
 				{true, false, false, false},
 			},
-			Pos: []Pos{
-				Pos{0, 0}, Pos{0, 3},
-				Pos{1, 2}, Pos{1, 3},
+			PosSet: PosSet{
+				Pos{0, 0}, Pos{0, 2}, Pos{0, 3},
+				Pos{1, 2},
 				Pos{2, 0}, Pos{2, 1},
 				Pos{3, 0},
 			},
 		},
 		{
-			Width: 10,
-			Grid:  Grid{0x26d, 0x34, 0x213, 0xc1, 0x26d, 0x34, 0x213, 0xc1, 0x26d, 0x34},
-			Bool: [][]bool{
+			BitGrid: BitGrid{0x26d, 0x34, 0x213, 0xc1, 0x26d, 0x34, 0x213, 0xc1, 0x26d, 0x34},
+			BoolGrid: BoolGrid{
 				{true, false, true, true, false, true, true, false, false, true},
 				{false, false, true, false, true, true, false, false, false, false},
 				{true, true, false, false, true, false, false, false, false, true},
@@ -43,7 +40,7 @@ func TestPacking(t *testing.T) {
 				{true, false, true, true, false, true, true, false, false, true},
 				{false, false, true, false, true, true, false, false, false, false},
 			},
-			Pos: []Pos{
+			PosSet: PosSet{
 				Pos{0, 0}, Pos{0, 2}, Pos{0, 3}, Pos{0, 5}, Pos{0, 6}, Pos{0, 9},
 				Pos{1, 2}, Pos{1, 4}, Pos{1, 5},
 				Pos{2, 0}, Pos{2, 1}, Pos{2, 4}, Pos{2, 9},
@@ -59,28 +56,38 @@ func TestPacking(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		deepCompare(t, i, "UnpackBool", test.Grid.UnpackBool(test.Width), test.Bool)
-		deepCompare(t, i, "UnpackPos", test.Grid.UnpackPos(), test.Pos)
-		deepCompare(t, i, "PackBool", PackBool(test.Bool), test.Grid)
-		deepCompare(t, i, "PackPos", PackPos(test.Pos), test.Grid)
+		deepCompare(t, i, "BitGrid.BoolGrid()", test.BitGrid.BoolGrid(), test.BoolGrid)
+		deepCompare(t, i, "BitGrid.PosSet()", test.BitGrid.PosSet(), test.PosSet)
+		deepCompare(t, i, "BoolGrid.BitGrid()", test.BoolGrid.BitGrid(), test.BitGrid)
+		deepCompare(t, i, "BoolGrid.PosSet()", test.BoolGrid.PosSet(), test.PosSet)
+		deepCompare(t, i, "PosSet.BitGrid()", test.PosSet.BitGrid(), test.BitGrid)
+		deepCompare(t, i, "PosSet.BoolGrid()", test.PosSet.BoolGrid(), test.BoolGrid)
 	}
 }
 
-func TestUnpackBoolInvalid(t *testing.T) {
-	grid := Grid{0x9, 0xc, 0x3, 0x1}
-	deepCompare(t, 0, "UnpackBool(-1)", grid.UnpackBool(-1), [][]bool(nil))
-	deepCompare(t, 1, "UnpackBool(64)", grid.UnpackBool(65), [][]bool(nil))
-	deepCompare(t, 2, "UnpackBool(100)", grid.UnpackBool(100), [][]bool(nil))
+func TestBitGridString(t *testing.T) {
+	want := `X  X
+  XX
+XX  
+X   
+`
+	grid := BitGrid{0x9, 0xc, 0x3, 0x1}
+	deepCompare(t, 0, "BitGrid.String()", grid.String(), want)
 }
 
-func TestGridString(t *testing.T) {
-	want := `X  X                                                            
-  XX                                                            
-XX                                                              
-X                                                               
+func TestBoolGridString(t *testing.T) {
+	want := `X  X
+  XX
+XX  
+X   
 `
-	grid := Grid{0x9, 0xc, 0x3, 0x1}
-	deepCompare(t, 0, "String", grid.String(), want)
+	grid := BoolGrid{
+		{true, false, false, true},
+		{false, false, true, true},
+		{true, true, false, false},
+		{true, false, false, false},
+	}
+	deepCompare(t, 0, "BoolGrid.String()", grid.String(), want)
 }
 
 func TestPosString(t *testing.T) {

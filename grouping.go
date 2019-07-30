@@ -1,19 +1,16 @@
-package bitgroup
+package gridgrouper
 
 import (
 	"math/bits"
 )
 
-// Grid stores a square grid of dots in a compact manner.
-type Grid []uint64
-
 // Groups computes all groups of connected dots.
-func (grid Grid) Groups() []Grid {
-	var groups []Grid
+func (grid BitGrid) Groups() []BitGrid {
+	var groups []BitGrid
 	for row := range grid {
 		for grid[row] != 0 {
-			group := make(Grid, len(grid))
-			mask := getConsecutiveOnes(grid[row])
+			group := make(BitGrid, len(grid))
+			mask := ConsecutiveOnes64(grid[row])
 			fillGroup(grid, group, row, mask)
 			groups = append(groups, group)
 		}
@@ -24,7 +21,7 @@ func (grid Grid) Groups() []Grid {
 // fillGroup recursively fills a group with connected dots starting with a given
 // mask for the current row.
 // Precondition: 0 <= row && row < len(grid).
-func fillGroup(grid, group Grid, row int, mask uint64) {
+func fillGroup(grid, group BitGrid, row int, mask uint64) {
 	mask &= grid[row]
 	if mask == 0 {
 		return
@@ -43,9 +40,9 @@ func fillGroup(grid, group Grid, row int, mask uint64) {
 	}
 }
 
-// getConsecutiveOnes returns a mask of the most significant series of
+// ConsecutiveOnes64 returns a mask of the most significant series of
 // consecutive ones.
-func getConsecutiveOnes(x uint64) uint64 {
+func ConsecutiveOnes64(x uint64) uint64 {
 	leftLen := uint64(bits.Len64(x))
 	left := uint64(1<<leftLen - 1)
 	rightLen := uint64(bits.Len64(left &^ x))

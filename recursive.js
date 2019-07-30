@@ -1,10 +1,13 @@
 function getGroups(grid) {
-  const visited = [...Array(grid.length)].map(row => Array(grid[0].length).fill(false));
   const groups = [];
-  for (let i = 0; i < grid.length; i++) {
-    for (let j = 0; j < grid[0].length; j++) {
-      const group = getGroup(i, j, grid, visited, []);
-      if (group.length) {
+  if (grid.length === 0) {
+    return groups
+  }
+  const visited = [...Array(grid.length)].map(row => Array(grid[0].length).fill(false));
+  for (let row = 0; row < grid.length; row++) {
+    for (let col = 0; col < grid[0].length; col++) {
+      const group = getGroup(row, col, grid, visited, []);
+      if (group.length > 0) {
         groups.push(group);
       }
     }
@@ -12,29 +15,29 @@ function getGroups(grid) {
   return groups;
 }
 
-function getGroup(i, j, grid, visited, group) {
-  if (i < 0 || j < 0 || i >= grid.length || j >= grid[0].length) {
+function getGroup(row, col, grid, visited, group) {
+  if (row < 0 || col < 0 || row >= grid.length || col >= grid[0].length) {
     return group;
   }
-  if (!grid[i][j] || visited[i][j]) {
+  if (!grid[row][col] || visited[row][col]) {
     return group;
   }
-  visited[i][j] = true;
-  group.push([i, j]);
-  getGroup(i-1, j-1, grid, visited, group);
-  getGroup(i-1, j,   grid, visited, group);
-  getGroup(i-1, j+1, grid, visited, group);
-  getGroup(i,   j-1, grid, visited, group);
-  getGroup(i,   j+1, grid, visited, group);
-  getGroup(i+1, j-1, grid, visited, group);
-  getGroup(i+1, j,   grid, visited, group);
-  getGroup(i+1, j+1, grid, visited, group);
+  visited[row][col] = true;
+  group.push([row, col]);
+  getGroup(row-1, col-1, grid, visited, group);
+  getGroup(row-1, col,   grid, visited, group);
+  getGroup(row-1, col+1, grid, visited, group);
+  getGroup(row,   col-1, grid, visited, group);
+  getGroup(row,   col+1, grid, visited, group);
+  getGroup(row+1, col-1, grid, visited, group);
+  getGroup(row+1, col,   grid, visited, group);
+  getGroup(row+1, col+1, grid, visited, group);
   return group;
 }
 
 console.log(getGroups([
-  [true, false, false, true],
-  [false, false, true, true],
+  [true, false, true, true],
+  [false, false, true, false],
   [true, true, false, false],
   [true, false, false, false]
 ]));

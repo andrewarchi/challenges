@@ -1,4 +1,4 @@
-package bitgroup
+package gridgrouper
 
 import (
 	"fmt"
@@ -7,24 +7,24 @@ import (
 
 func TestGroups(t *testing.T) {
 	tests := []struct {
-		Grid   [][]bool
-		Groups [][][]bool
+		Grid   BoolGrid
+		Groups []BoolGrid
 	}{
 		{
-			Grid: [][]bool{
-				{true, false, false, true},
-				{false, false, true, true},
+			Grid: BoolGrid{
+				{true, false, true, true},
+				{false, false, true, false},
 				{true, true, false, false},
 				{true, false, false, false},
 			},
-			Groups: [][][]bool{
-				[][]bool{
-					{false, false, false, true},
+			Groups: []BoolGrid{
+				BoolGrid{
 					{false, false, true, true},
+					{false, false, true, false},
 					{true, true, false, false},
 					{true, false, false, false},
 				},
-				[][]bool{
+				BoolGrid{
 					{true, false, false, false},
 					{false, false, false, false},
 					{false, false, false, false},
@@ -33,7 +33,7 @@ func TestGroups(t *testing.T) {
 			},
 		},
 		{
-			Grid: [][]bool{
+			Grid: BoolGrid{
 				{true, false, true, true, false, true, true, false, false, true},
 				{false, false, true, false, true, true, false, false, false, false},
 				{true, true, false, false, true, false, false, false, false, true},
@@ -45,8 +45,8 @@ func TestGroups(t *testing.T) {
 				{true, false, true, true, false, true, true, false, false, true},
 				{false, false, true, false, true, true, false, false, false, false},
 			},
-			Groups: [][][]bool{
-				[][]bool{
+			Groups: []BoolGrid{
+				BoolGrid{
 					{false, false, false, false, false, false, false, false, false, true},
 					{false, false, false, false, false, false, false, false, false, false},
 					{false, false, false, false, false, false, false, false, false, false},
@@ -58,7 +58,7 @@ func TestGroups(t *testing.T) {
 					{false, false, false, false, false, false, false, false, false, false},
 					{false, false, false, false, false, false, false, false, false, false},
 				},
-				[][]bool{
+				BoolGrid{
 					{false, false, true, true, false, true, true, false, false, false},
 					{false, false, true, false, true, true, false, false, false, false},
 					{true, true, false, false, true, false, false, false, false, false},
@@ -70,7 +70,7 @@ func TestGroups(t *testing.T) {
 					{false, false, false, false, false, false, false, false, false, false},
 					{false, false, false, false, false, false, false, false, false, false},
 				},
-				[][]bool{
+				BoolGrid{
 					{true, false, false, false, false, false, false, false, false, false},
 					{false, false, false, false, false, false, false, false, false, false},
 					{false, false, false, false, false, false, false, false, false, false},
@@ -82,7 +82,7 @@ func TestGroups(t *testing.T) {
 					{false, false, false, false, false, false, false, false, false, false},
 					{false, false, false, false, false, false, false, false, false, false},
 				},
-				[][]bool{
+				BoolGrid{
 					{false, false, false, false, false, false, false, false, false, false},
 					{false, false, false, false, false, false, false, false, false, false},
 					{false, false, false, false, false, false, false, false, false, true},
@@ -94,7 +94,7 @@ func TestGroups(t *testing.T) {
 					{false, false, false, false, false, false, false, false, false, false},
 					{false, false, false, false, false, false, false, false, false, false},
 				},
-				[][]bool{
+				BoolGrid{
 					{false, false, false, false, false, false, false, false, false, false},
 					{false, false, false, false, false, false, false, false, false, false},
 					{false, false, false, false, false, false, false, false, false, false},
@@ -106,7 +106,7 @@ func TestGroups(t *testing.T) {
 					{true, false, false, false, false, false, false, false, false, false},
 					{false, false, false, false, false, false, false, false, false, false},
 				},
-				[][]bool{
+				BoolGrid{
 					{false, false, false, false, false, false, false, false, false, false},
 					{false, false, false, false, false, false, false, false, false, false},
 					{false, false, false, false, false, false, false, false, false, false},
@@ -118,7 +118,7 @@ func TestGroups(t *testing.T) {
 					{false, false, false, false, false, false, false, false, false, false},
 					{false, false, false, false, false, false, false, false, false, false},
 				},
-				[][]bool{
+				BoolGrid{
 					{false, false, false, false, false, false, false, false, false, false},
 					{false, false, false, false, false, false, false, false, false, false},
 					{false, false, false, false, false, false, false, false, false, false},
@@ -130,7 +130,7 @@ func TestGroups(t *testing.T) {
 					{false, false, false, false, false, false, false, false, false, false},
 					{false, false, false, false, false, false, false, false, false, false},
 				},
-				[][]bool{
+				BoolGrid{
 					{false, false, false, false, false, false, false, false, false, false},
 					{false, false, false, false, false, false, false, false, false, false},
 					{false, false, false, false, false, false, false, false, false, false},
@@ -142,7 +142,7 @@ func TestGroups(t *testing.T) {
 					{false, false, true, true, false, true, true, false, false, false},
 					{false, false, true, false, true, true, false, false, false, false},
 				},
-				[][]bool{
+				BoolGrid{
 					{false, false, false, false, false, false, false, false, false, false},
 					{false, false, false, false, false, false, false, false, false, false},
 					{false, false, false, false, false, false, false, false, false, false},
@@ -157,41 +157,41 @@ func TestGroups(t *testing.T) {
 			},
 		},
 		{
-			Grid: [][]bool{
+			Grid: BoolGrid{
 				{false, true, false, false},
 				{true, true, true, true},
 			},
-			Groups: [][][]bool{
-				[][]bool{
+			Groups: []BoolGrid{
+				BoolGrid{
 					{false, true, false, false},
 					{true, true, true, true},
 				},
 			},
 		},
 		{
-			Grid: [][]bool{
+			Grid: BoolGrid{
 				{false, true, false, false},
 				{true, false, false, true},
 			},
-			Groups: [][][]bool{
-				[][]bool{
+			Groups: []BoolGrid{
+				BoolGrid{
 					{false, true, false, false},
 					{true, false, false, false},
 				},
-				[][]bool{
+				BoolGrid{
 					{false, false, false, false},
 					{false, false, false, true},
 				},
 			},
 		},
 		{
-			Grid: [][]bool{
+			Grid: BoolGrid{
 				{false, true, false, false},
 				{true, false, false, true},
 				{false, true, true, false},
 			},
-			Groups: [][][]bool{
-				[][]bool{
+			Groups: []BoolGrid{
+				BoolGrid{
 					{false, true, false, false},
 					{true, false, false, true},
 					{false, true, true, false},
@@ -201,29 +201,15 @@ func TestGroups(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		grid := PackBool(test.Grid)
+		grid := test.Grid.BitGrid()
 		groups := grid.Groups()
 		if len(groups) != len(test.Groups) {
 			t.Errorf("test %d: got len %d, want %d", i, len(groups), len(test.Groups))
 			continue
 		}
 		for g := 0; g < len(groups); g++ {
-			want := PackBool(test.Groups[g])
+			want := test.Groups[g].BitGrid()
 			deepCompare(t, i, fmt.Sprintf("group %d", g), groups[g], want)
 		}
-	}
-}
-
-func BenchmarkGroups_4(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		grid := Grid{0x9, 0xc, 0x3, 0x1} // same as 4x4 grid above
-		grid.Groups()
-	}
-}
-
-func BenchmarkGroups_10(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		grid := Grid{0x26d, 0x34, 0x213, 0xc1, 0x26d, 0x34, 0x213, 0xc1, 0x26d, 0x34} // same as 10x10 grid above
-		grid.Groups()
 	}
 }

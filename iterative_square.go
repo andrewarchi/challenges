@@ -1,31 +1,24 @@
-package main
+package gridgrouper
 
-type position struct {
-	Column int
-	Row    int
-}
-
-type group = []position
-
-func getGroupsBySquares(grid [][]bool) []group {
+func getGroupsBySquares(grid BoolGrid) []PosSet {
 	// Group into 2x2 squares
 	n, m := len(grid), len(grid[0])
-	groups := [][]**group{}
+	groups := [][]**PosSet{}
 	for i := 0; i < n; i += 2 {
-		row := []**group{}
+		row := []**PosSet{}
 		for j := 0; j < m; j += 2 {
-			g := &group{}
+			g := &PosSet{}
 			if grid[i][j] {
-				*g = append(*g, position{j, i})
+				*g = append(*g, Pos{j, i})
 			}
 			if j+1 < m && grid[i][j+1] {
-				*g = append(*g, position{j + 1, i})
+				*g = append(*g, Pos{j + 1, i})
 			}
 			if i+1 < n && grid[i+1][j] {
-				*g = append(*g, position{j, i + 1})
+				*g = append(*g, Pos{j, i + 1})
 			}
 			if i+1 < n && j+2 < m && grid[i+1][j+1] {
-				*g = append(*g, position{j + 1, i + 1})
+				*g = append(*g, Pos{j + 1, i + 1})
 			}
 			row = append(row, &g)
 		}
@@ -68,8 +61,8 @@ func getGroupsBySquares(grid [][]bool) []group {
 		}
 	}
 
-	uniqueGroups := map[*group]bool{}
-	finalGroups := []group{}
+	uniqueGroups := map[*PosSet]bool{}
+	finalGroups := []PosSet{}
 	for i := 0; i < len(groups); i++ {
 		for j := 0; j < len(groups[0]); j++ {
 			if !uniqueGroups[*groups[i][j]] && len(**groups[i][j]) > 0 {
@@ -82,7 +75,7 @@ func getGroupsBySquares(grid [][]bool) []group {
 	return finalGroups
 }
 
-func mergeGroups(groups [][]**group, i1, j1, i2, j2 int) {
+func mergeGroups(groups [][]**PosSet, i1, j1, i2, j2 int) {
 	**groups[i1][j1] = append(**groups[i1][j1], **groups[i2][j2]...)
 	*groups[i2][j2] = *groups[i1][j1]
 	groups[i2][j2] = groups[i1][j1]

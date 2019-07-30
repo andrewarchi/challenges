@@ -1,4 +1,4 @@
-package main
+package gridgrouper
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 )
 
 func TestGetGroups(t *testing.T) {
-	grid := [][]bool{
+	grid := BoolGrid{
 		{true, false, true, true},
 		{false, false, true, false},
 		{true, true, false, false},
