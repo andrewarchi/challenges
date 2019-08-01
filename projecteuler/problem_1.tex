@@ -1,0 +1,38 @@
+\documentclass{article}
+\usepackage{mathtools}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+
+\begin{document}
+  \section{Multiples of 3 and 5}
+  Problem 1
+  
+  If we list all the natural numbers below 10 that are multiples of 3 or 5,
+  we get 3, 5, 6 and 9. The sum of these multiples is 23.
+
+  Find the sum of all the multiples of 3 or 5 below 1000.
+
+  \begin{equation*}
+    \begin{split}
+      m &= \floor*{\frac{n-1}{d}} \\
+      s(n,d)
+      &= \sum\limits_{i=1}^{m} di \\
+      &= d\sum\limits_{i=1}^{m} i \\
+      &= d\frac{m(m + 1)}{2}
+    \end{split}
+  \end{equation*}
+  \begin{equation*}
+    \begin{split}
+      f(n) &= s(n, 3) + s(n, 5) - s(n, 15) \\
+      f(1000)
+      &= s(1000, 3) + s(1000, 5) - s(1000, 15) \\
+      &= 3\frac{333\cdot334}{2}
+      + 5\frac{199\cdot200}{2}
+      - 15\frac{66\cdot67}{2} \\
+      &= 166833 + 99500 - 33165 \\
+      &= 233168
+    \end{split}
+  \end{equation*}
+\end{document}
